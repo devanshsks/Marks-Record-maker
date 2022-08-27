@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <title>marks list</title>
+</head>
+
+<body>
+    <u style = "color:red">
+        <h1 class="text-center my-4" style="color:blueviolet">Marks List</h1>
+    </u>
+    <div class="container my-3">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-12 col-md-6">
+                <div class="my-3">
+                    <label for="name" class="form-label">Name</label>
+                    <select id="name" class="form-select" aria-label="Default select example" style="width:300px">
+                        <option selected>none</option>
+                    </select>
+                </div>
+                <div class="my-3">
+                    <label for="subject" class="form-label">Subject</label>
+                    <select id="subject" class="form-select" aria-label="Default select example" style="width:300px">
+                        <option selected>none</option>
+                    </select>
+                </div>
+                <div class="my-3">
+                    <label for="marks" class="form-label">Marks</label>
+                    <input type="number" class="form-control" id="marks" style="width:150px" min="0" max="100">
+                </div>
+                <button id="add" class="btn btn-primary mb-4">Add to list</button>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card">
+                    <h2 class="text-center mx-4">Manage students</h2>
+                    <input type="text" class="form-control mb-2 mx-4" id="add_name" placeholder="enter name"
+                        style="width:200px">
+                    <button id="name_student" class="btn btn-sm btn-primary mb-3 mx-4" style="width:100px">click
+                        here</button>
+                </div>
+                <div class="card my-4">
+                    <h2 class="text-center mx-4">Manage subjects</h2>
+                    <input type="text" class="form-control mb-2 mx-4" id="add_sub" placeholder="enter subject"
+                        style="width:200px">
+                    <button id="name_subject" class="btn btn-sm btn-primary mb-2 mx-4" style="width:100px">click
+                        here</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-12 col-md-4">
+            <table class="table" id="tablecontent">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">action</th>
+                    </tr>
+                </thead>
+                <tbody id="tablebody">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-12 col-md-4">
+            <table class="table" id="subtablecontent">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name of subject</th>
+                        <th scope="col">action</th>
+                    </tr>
+                </thead>
+                <tbody id="subtablebody">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+        integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+        integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+        crossorigin="anonymous"></script>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel"><span id="modal_title"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modal_content">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function update() {
+            if (localStorage.getItem('nameJson') == null) {
+                namearray = [];
+                localStorage.setItem('nameJson', JSON.stringify(namearray));
+            }
+            else {
+                namearraystr = localStorage.getItem('nameJson');
+                namearray = JSON.parse(namearraystr);
+            }
+            let tablebody = document.getElementById('tablebody');
+            let str = "";
+            namearray.forEach((element, index) => {
+                str += `
+                <tr>
+                    <th scope="row">${index + 1}</th>
+                    <td>${element.name}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="view(${index})" data-bs-toggle="modal" data-bs-target="#exampleModal">View</button><button class="btn btn-sm btn-primary mx-2" onclick="deleting(${index})">Delete</button></td> 
+                </tr>`;
+            });
+            tablebody.innerHTML = str;
+        }
+
+        adding = document.getElementById('add');
+        adding.addEventListener("click", listadd);
+        function listadd() {
+            marks = document.getElementById('marks').value;
+            name_index = document.getElementById('name').value;
+            subject_index = document.getElementById('subject').value;
+            namearraystr = localStorage.getItem('nameJson');
+            namearray = JSON.parse(namearraystr);
+            if (marks == '' || name_index == 'none' || subject_index == 'none') {
+                alert("enter proper values");
+            }
+            else if (marks > 100 || marks < 0) {
+                alert("enter marks in the range 0 to 100");
+            }
+            else {
+                namearray[name_index].marks[subject_index] = marks;
+                localStorage.setItem('nameJson', JSON.stringify(namearray));
+                update();
+            }
+        }
+
+        update();
+        function deleting(delete_index) {
+            namearraystr = localStorage.getItem('nameJson');
+            namearray = JSON.parse(namearraystr);
+            if (confirm("Do you want to delete the data of " + namearray[delete_index].name + " ?")) {
+                namearray.splice(delete_index, 1);
+                localStorage.setItem('nameJson', JSON.stringify(namearray));
+                update();
+                updatenamedropdown();
+            }
+        }
+        function view(view_index) {
+            namearraystr = localStorage.getItem('nameJson');
+            namearray = JSON.parse(namearraystr);
+            subjectarraystr = localStorage.getItem('subjectJson');
+            subjectarray = JSON.parse(subjectarraystr);
+            str1 = "";
+            for (let i = 0; i < subjectarray.length; i++) {
+                str1 += `
+                <h6>${subjectarray[i]}</h6>`;
+                if (namearray[view_index].marks[i] != null || namearray[view_index].marks[i] != undefined) {
+                    str1 += `
+                    <p>${namearray[view_index].marks[i]}</p>
+                    `
+                }
+                else {
+                    str1 += `
+                    <p>no value was added</p>
+                    `
+                }
+            }
+            var n = namearray[view_index].marks.length;
+
+            var avg = 0;
+            var t = 0;
+            for (let i = 0; i < n; i++) {
+                if (namearray[view_index].marks[i] != null || namearray[view_index].marks[i] != undefined) {
+                    avg += parseFloat(namearray[view_index].marks[i]);
+                    t++;
+                }
+            }
+
+            str1 += `
+                <h6>Average Marks<p>
+                `
+            if (t == 0) {
+                str1 += `
+                    <p>no values were entered</p>
+                    `
+            }
+            else {
+                avg = avg / t;
+                str1 += `
+                    <p>${avg.toFixed(2)}</p>
+                    `
+            }
+
+
+            let modal_material = document.getElementById('modal_content');
+            modal_material.innerHTML = str1;
+            let mod_title = document.getElementById('modal_title');
+            mod_title.innerHTML = namearray[view_index].name;
+        }
+        add_sub = document.getElementById('name_subject');
+        add_sub.addEventListener("click", addsubject);
+        function addsubject() {
+            console.log("adding...");
+            sub = document.getElementById('add_sub').value;
+            if (sub == '') {
+                alert("enter the subject to be added");
+            }
+            else {
+                if (localStorage.getItem('subjectJson') == null) {
+                    subjectarray = [];
+                    subjectarray.push([sub]);
+                    localStorage.setItem('subjectJson', JSON.stringify(subjectarray));
+                }
+                else {
+                    subjectarraystr = localStorage.getItem('subjectJson');
+                    subjectarray = JSON.parse(subjectarraystr);
+                    var x = 0;
+                    subjectarray.forEach((element) => {
+                        if (element == sub) {
+                            x = 1;
+                        }
+                    });
+                    if (x == 1) {
+                        alert("subject already exists");
+                    }
+                    else {
+                        subjectarray.push([sub]);
+                        localStorage.setItem('subjectJson', JSON.stringify(subjectarray));
+                    }
+                }
+                updatesublist();
+                updatesubdropdown();
+            }
+        }
+
+        function updatesublist() {
+            if (localStorage.getItem('subjectJson') == null) {
+                subjectarray = [];
+                localStorage.setItem('subjectJson', JSON.stringify(subjectarray));
+            }
+            else {
+                subjectarraystr = localStorage.getItem('subjectJson');
+                subjectarray = JSON.parse(subjectarraystr);
+            }
+            let subtablebody = document.getElementById('subtablebody');
+            let str = "";
+            subjectarray.forEach((element, index) => {
+                str += `
+                <tr>
+                    <th scope="row">${index + 1}</th>
+                    <td>${element}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="subdeleting(${index})">Delete</button></td> 
+                </tr>`;
+            });
+            subtablebody.innerHTML = str;
+        }
+        updatesublist();
+        function subdeleting(sub_index) {
+            subjectarraystr = localStorage.getItem('subjectJson');
+            subjectarray = JSON.parse(subjectarraystr);
+            if (confirm("Do you want to delete subject " + subjectarray[sub_index] + " ?")) {
+                subjectarray.splice(sub_index, 1);
+                localStorage.setItem('subjectJson', JSON.stringify(subjectarray));
+                updatesubdropdown();
+                updatesublist();
+                if (localStorage.getItem('nameJson') == null) {
+                    namearray = [];
+                    localStorage.setItem('nameJson', JSON.stringify(namearray));
+                }
+                else {
+                    namearraystr = localStorage.getItem('nameJson');
+                    namearray = JSON.parse(namearraystr);
+                }
+                namearray.forEach((element, index) => {
+                    element.marks.splice(sub_index, 1);
+                });
+                localStorage.setItem('nameJson', JSON.stringify(namearray));
+            }
+
+        }
+        updatesubdropdown();
+        function updatesubdropdown() {
+            if (localStorage.getItem('subjectJson') == null) {
+                subjectarray = [];
+                localStorage.setItem('subjectJson', JSON.stringify(subjectarray));
+            }
+            else {
+                subjectarraystr = localStorage.getItem('subjectJson');
+                subjectarray = JSON.parse(subjectarraystr);
+            }
+            let sub_list = document.getElementById('subject');
+            let str = "<option selected>none</option>";
+            subjectarray.forEach((element, index) => {
+                str += `
+                <option value = "${index}">${element}</option>
+                `
+            });
+            sub_list.innerHTML = str;
+        }
+        add_name = document.getElementById('name_student');
+        add_name.addEventListener("click", addname);
+        function addname() {
+            newname = document.getElementById('add_name').value;
+            if (newname == '') {
+                alert("enter some name");
+            }
+            else {
+                if (localStorage.getItem('nameJson') == null) {
+                    namearray = [];
+                    namearray.push({
+                        name: newname,
+                        marks: []
+                    });
+                    localStorage.setItem('nameJson', JSON.stringify(namearray));
+                }
+                else {
+                    namearraystr = localStorage.getItem('nameJson');
+                    namearray = JSON.parse(namearraystr);
+                    var x = 0;
+                    namearray.forEach((element) => {
+                        if (element.name == newname) {
+                            x = 1;
+                        }
+                    });
+                    if (x == 1) {
+                        alert("name already exists");
+                    }
+                    else {
+                        namearray.push({
+                            name: newname,
+                            marks: []
+                        });
+                        localStorage.setItem('nameJson', JSON.stringify(namearray));
+                    }
+                }
+                updatenamedropdown();
+            }
+        }
+        updatenamedropdown();
+        function updatenamedropdown() {
+            if (localStorage.getItem('nameJson') == null) {
+                namearray = [];
+                localStorage.setItem('nameJson', JSON.stringify(namearray));
+            }
+            else {
+                namearraystr = localStorage.getItem('nameJson');
+                namearray = JSON.parse(namearraystr);
+            }
+            let name_list = document.getElementById('name');
+            let str = "<option selected>none</option>";
+            namearray.forEach((element, index) => {
+                str += `
+                <option value = "${index}">${element.name}</option>
+                `
+            });
+            name_list.innerHTML = str;
+
+        }
+    </script>
+
+</body>
+
+</html>
